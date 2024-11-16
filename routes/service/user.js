@@ -137,7 +137,6 @@ module.exports = class {
                             })
                         ]);
                         isNext = countsAccess[0] <= getLimit.article && countsAccess[1] <= getLimit.video;
-                        console.log({countsAccess})
                         remainingLimitArticle -= countsAccess[0];
                         remainingLimitVideo -= countsAccess[1];
                     }
@@ -153,7 +152,8 @@ module.exports = class {
                         },
                     });
                     if (!getHistory) {
-                        if ((!getAsset.is_video && remainingLimitArticle > 0) || (getAsset.is_video && remainingLimitVideo > 0)) {
+                        if (getLimit.type == 'TYPE_C' || (!getAsset.is_video && remainingLimitArticle > 0) ||
+                        (getAsset.is_video && remainingLimitVideo > 0)) {
                             await prisma.history.create({
                                 data: {
                                     userId: getCredential.user.id,
