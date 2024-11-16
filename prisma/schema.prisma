@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PermissionUser {
+  TYPE_A
+  TYPE_B
+  TYPE_C
+}
+
+model User {
+  id               String         @id
+  email            String         @unique
+  full_name        String?
+  profile_picture  String?
+  permission       PermissionUser @default(TYPE_A)
+  created_at       DateTime       @default(now()) @db.Timestamptz
+  updated_at       DateTime       @default(now()) @db.Timestamptz
+  credentials      Credential[]
+  histories        History[]
+
+  @@map("tb_user")
+}
+
+model Credential {
+  id               BigInt       @id @default(autoincrement())
+  userId           String
+  token_hash       String
+  ip_address       String?
+  created_at       DateTime     @default(now()) @db.Timestamptz
+  updated_at       DateTime     @default(now()) @db.Timestamptz
+  user             User         @relation(fields: [userId], references: [id])
+
+  @@map("tb_credential")
+}
+
+model Asset {
+  id               BigInt       @id @default(autoincrement())
+  title            String       
+  content          String
+  thumbnail        String
+  is_video         Boolean      @default(false)
+  created_at       DateTime     @default(now()) @db.Timestamptz
+  updated_at       DateTime     @default(now()) @db.Timestamptz
+  histories        History[]
+
+  @@map("tb_asset")
+}
+
+model History {
+  id               BigInt       @id @default(autoincrement())
+  assetId          BigInt
+  userId           String
+  is_video         Boolean      
+  created_at       DateTime     @default(now()) @db.Timestamptz
+  updated_at       DateTime     @default(now()) @db.Timestamptz
+  asset            Asset        @relation(fields: [assetId], references: [id])
+  user             User         @relation(fields: [userId], references: [id])
+
+  @@map("tb_history")
+}
